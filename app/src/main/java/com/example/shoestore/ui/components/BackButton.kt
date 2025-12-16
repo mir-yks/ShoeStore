@@ -16,7 +16,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.shoestore.R
+import com.example.shoeshop.R
 
 
 @Composable

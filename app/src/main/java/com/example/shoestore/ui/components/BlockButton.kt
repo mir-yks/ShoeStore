@@ -10,7 +10,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.shoestore.R
+import com.example.shoeshop.R
 
 @Composable
 fun BlockButton(modifier: Modifier = Modifier, text: String) {
