@@ -4,11 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.shoestore.ui.screens.CreateNewPasswordScreen
 import com.example.shoestore.ui.screens.EmailVerificationScreen
+import com.example.shoestore.ui.screens.ForgotPasswordScreen
 import com.example.shoestore.ui.screens.HomeScreen
 import com.example.shoestore.ui.screens.OnboardScreen
 import com.example.shoestore.ui.screens.RegisterAccountScreen
 import com.example.shoestore.ui.screens.SignInScreen
+import com.example.shoestore.ui.screens.VerificationScreen
 
 @Composable
 fun NavigationApp(navController: NavHostController) {
@@ -16,16 +19,51 @@ fun NavigationApp(navController: NavHostController) {
         navController = navController,
         startDestination = "start_menu"
     ) {
+        composable("start_menu") {
+            OnboardScreen(
+                onGetStartedClick = { navController.navigate("sign_up") },
+            )
+        }
+
         composable("sign_up") {
             RegisterAccountScreen(
                 onSignInClick = { navController.navigate("sign_in") },
                 onSignUpClick = { navController.navigate("email_verification") }
             )
         }
+
         composable("sign_in") {
             SignInScreen(
-                onSignInClick = { navController.navigate("home") },
-                onSignUpClick = { navController.navigate("sign_up") }
+                onForgotPasswordClick = { navController.navigate("forgot_password") },
+                onSignUpClick = { navController.navigate("sign_up") },
+                onSignInClick = { navController.navigate("home") }
+            )
+        }
+
+        composable("forgot_password") {
+            ForgotPasswordScreen(
+                onBackClick = { navController.popBackStack() },
+                onNavigateToOTP = { email -> navController.navigate("otp/$email") }
+            )
+        }
+
+        composable("otp/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            VerificationScreen(
+                email = email,
+                onVerifySuccess = { navController.navigate("new_password") }
+            )
+        }
+
+        composable("new_password") {
+            // ИСПРАВЛЕНО: Передаем именованные параметры, чтобы избежать путаницы с ViewModel
+            CreateNewPasswordScreen(
+                onBackClick = { navController.popBackStack() },
+                onSuccessNavigation = {
+                    navController.navigate("sign_in") {
+                        popUpTo("sign_in") { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -36,15 +74,8 @@ fun NavigationApp(navController: NavHostController) {
             )
         }
 
-        composable("start_menu") {
-            OnboardScreen (
-                onGetStartedClick = { navController.navigate("sign_up") },
-            )
-        }
-
         composable("home") {
-            HomeScreen({},{},{})
+            HomeScreen({}, {}, {})
         }
-
     }
 }

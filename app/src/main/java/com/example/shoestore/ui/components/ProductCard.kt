@@ -114,7 +114,7 @@ fun ProductCard(
 @Composable
 fun ProductCardPreview() {
     ProductCard(
-        product = com.example.shoestore.data.model.Product(
+        product = Product(
             id = "1",
             name = "Nike Air Max",
             price = "P752.00",

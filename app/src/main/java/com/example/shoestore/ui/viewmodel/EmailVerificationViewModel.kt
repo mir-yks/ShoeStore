@@ -1,4 +1,3 @@
-// EmailVerificationViewModel.kt
 package com.example.shoestore.ui.viewmodel
 
 import android.util.Log
