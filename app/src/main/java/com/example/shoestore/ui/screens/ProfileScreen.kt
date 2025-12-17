@@ -1,6 +1,11 @@
 package com.example.shoestore.ui.screens
 
+import android.graphics.Bitmap
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,225 +15,116 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.shoestore.ui.theme.AppTypography
-import com.example.shoestore.ui.components.DisableButton
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shoestore.R
+import com.example.shoestore.ui.viewmodels.ProfileViewModel
+import com.example.shoestore.ui.viewmodels.ProfileUiState
 
 @Composable
-fun ProfileScreen() {
-    var isEditing by remember { mutableStateOf(false) }
-    var name by remember { mutableStateOf("Еmmanuel") }
-    var lastName by remember { mutableStateOf("Oyiboke") }
-    var address by remember { mutableStateOf("Nigeria") }
-    var phone by remember { mutableStateOf("") }
+fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
+    val uiState = viewModel.uiState
 
-    val hasChanges by remember(name, lastName, address, phone) {
-        derivedStateOf {
-            name != "Еmmanuel" || lastName != "Oyiboke" || address != "Nigeria" || phone != ""
-        }
+    // Лаунчер для камеры
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap: Bitmap? ->
+        bitmap?.let { viewModel.onPhotoCaptured(it) }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Row(
+    LaunchedEffect(Unit) { viewModel.loadProfile() }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Профиль", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
+                IconButton(onClick = { viewModel.isEditing = !viewModel.isEditing }) {
+                    Icon(painterResource(id = R.drawable.edit), contentDescription = null)
+                }
+            }
+
+            // Блок аватара с камерой
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .size(100.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .clip(CircleShape)
+                    .background(Color.LightGray)
+                    .clickable { cameraLauncher.launch(null) } // Запуск камеры
             ) {
-                Spacer(modifier = Modifier.size(40.dp))
-                Text(
-                    text = stringResource(id = R.string.profile),
-                    style = AppTypography.headingSemiBold16,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f)
-                )
-                IconButton(
-                    onClick = {
-                        if (isEditing) {
-                            name = "Еmmanuel"
-                            lastName = "Oyiboke"
-                            address = "Nigeria"
-                            phone = ""
-                        }
-                        isEditing = !isEditing
-                    },
-                    modifier = Modifier.size(40.dp)
-                ) {
+                if (viewModel.bitmapPhoto != null) {
+                    Image(
+                        bitmap = viewModel.bitmapPhoto!!.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
                     Icon(
-                        painter = painterResource(id =
-                            if (isEditing) R.drawable.edit else R.drawable.edit
-                        ),
-                        contentDescription = if (isEditing) "Отмена" else "Редактировать",
-                        tint = Color.Gray
+                        painterResource(id = R.drawable.profile), // замени на свою иконку
+                        contentDescription = null,
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
             }
+
+            EditableField("Имя", viewModel.name, viewModel.isEditing) { viewModel.name = it }
+            EditableField("Фамилия", viewModel.lastName, viewModel.isEditing) { viewModel.lastName = it }
+            EditableField("Адрес", viewModel.address, viewModel.isEditing) { viewModel.address = it }
+            EditableField("Телефон", viewModel.phone, viewModel.isEditing) { viewModel.phone = it }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFE0E0E0))
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Еmmanuel Oyiboke",
-                    style = AppTypography.bodyRegular20
-                )
+            if (viewModel.isEditing) {
+                Button(
+                    onClick = { viewModel.saveProfile() },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Сохранить изменения") }
             }
+        }
 
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (isEditing) {
-                    EditableField(
-                        label = stringResource(id = R.string.your_name),
-                        value = name,
-                        onValueChange = { name = it }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EditableField(
-                        label = stringResource(id = R.string.last_name),
-                        value = lastName,
-                        onValueChange = { lastName = it }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EditableField(
-                        label = stringResource(id = R.string.address),
-                        value = address,
-                        onValueChange = { address = it }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    EditableField(
-                        label = stringResource(id = R.string.phone_number),
-                        value = phone,
-                        onValueChange = { phone = it }
-                    )
-                } else {
-                    InputField(label = stringResource(id = R.string.your_name), value = name)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    InputField(label = stringResource(id = R.string.last_name), value = lastName)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    InputField(label = stringResource(id = R.string.address), value = address)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    InputField(label = stringResource(id = R.string.phone_number), value = phone)
-                }
-            }
+        if (uiState is ProfileUiState.Loading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            if (isEditing) {
-                DisableButton(
-                    text = "Сохранить",
-                    onClick = {
-                        isEditing = false
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    enabled = hasChanges
-                )
-            }
+        if (uiState is ProfileUiState.Error) {
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissError() },
+                confirmButton = { TextButton(onClick = { viewModel.dismissError() }) { Text("OK") } },
+                title = { Text("Ошибка") },
+                text = { Text(uiState.message) }
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun InputField(
-    label: String,
-    value: String
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = label,
-            style = AppTypography.bodyMedium16.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp),
-            color = Color(0xFFF5F5F5),
-            border = CardDefaults.outlinedCardBorder()
-        ) {
+fun EditableField(label: String, value: String, isEditable: Boolean, onValueChange: (String) -> Unit) {
+    Column(modifier = Modifier.padding(top = 16.dp)) {
+        Text(text = label, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+        if (isEditable) {
+            OutlinedTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+        } else {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
+                    .background(Color(0xFFF7F7F9), RoundedCornerShape(12.dp))
                     .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
-                Text(
-                    text = if (value.isNotEmpty()) value else "Не указано",
-                    style = AppTypography.bodyRegular16.copy(
-                        color = if (value.isNotEmpty()) Color.Black else Color.Gray
-                    )
-                )
+                Text(text = value)
             }
         }
     }
-}
-
-@Composable
-private fun EditableField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = label,
-            style = AppTypography.bodyMedium16.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = AppTypography.bodyRegular16,
-            shape = RoundedCornerShape(8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF6200EE),
-                unfocusedBorderColor = Color(0xFFE0E0E0)
-            )
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen()
 }

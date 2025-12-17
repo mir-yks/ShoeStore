@@ -4,14 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.shoestore.ui.screens.CreateNewPasswordScreen
-import com.example.shoestore.ui.screens.EmailVerificationScreen
-import com.example.shoestore.ui.screens.ForgotPasswordScreen
-import com.example.shoestore.ui.screens.HomeScreen
-import com.example.shoestore.ui.screens.OnboardScreen
-import com.example.shoestore.ui.screens.RegisterAccountScreen
-import com.example.shoestore.ui.screens.SignInScreen
-import com.example.shoestore.ui.screens.VerificationScreen
+import com.example.shoestore.ui.screens.* // Импортируем все экраны
 
 @Composable
 fun NavigationApp(navController: NavHostController) {
@@ -36,7 +29,12 @@ fun NavigationApp(navController: NavHostController) {
             SignInScreen(
                 onForgotPasswordClick = { navController.navigate("forgot_password") },
                 onSignUpClick = { navController.navigate("sign_up") },
-                onSignInClick = { navController.navigate("home") }
+                onSignInClick = {
+                    navController.navigate("home") {
+                        // Очищаем стек, чтобы нельзя было вернуться на экран входа
+                        popUpTo("sign_in") { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -56,7 +54,6 @@ fun NavigationApp(navController: NavHostController) {
         }
 
         composable("new_password") {
-            // ИСПРАВЛЕНО: Передаем именованные параметры, чтобы избежать путаницы с ViewModel
             CreateNewPasswordScreen(
                 onBackClick = { navController.popBackStack() },
                 onSuccessNavigation = {
@@ -74,8 +71,24 @@ fun NavigationApp(navController: NavHostController) {
             )
         }
 
+        // ЭКРАН HOME (Пункт 9)
         composable("home") {
-            HomeScreen({}, {}, {})
+            HomeScreen(
+                onProductClick = { product ->
+                    // Здесь будет переход на детали товара: navController.navigate("details/${product.id}")
+                },
+                onCartClick = { /* Переход в корзину */ },
+                onSearchClick = { /* Логика поиска */ },
+                onSettingsClick = {
+                    // Переход в профиль (связываем меню с экраном профиля)
+                    navController.navigate("profile")
+                }
+            )
+        }
+
+        // ЭКРАН PROFILE (Пункт 12)
+        composable("profile") {
+            ProfileScreen()
         }
     }
 }
