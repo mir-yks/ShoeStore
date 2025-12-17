@@ -1,4 +1,4 @@
-package com.example.shoeshop.ui.screens
+package com.example.shoestore.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,9 +23,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.shoeshop.R
-import com.example.shoeshop.ui.components.BackButton
-import com.example.shoeshop.ui.components.DisableButton
+import com.example.shoestore.R
+import com.example.shoestore.ui.components.BackButton
+import com.example.shoestore.ui.components.DisableButton
 import com.example.shoestore.ui.viewmodel.SignInState
 import com.example.shoestore.ui.viewmodel.SignInViewModel
 import com.example.shoestore.ui.theme.AppTypography
@@ -48,7 +48,6 @@ fun SignInScreen(
     var errorMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    // Используем цвета из темы
     val hintColor = MaterialTheme.colorScheme.onSurfaceVariant
     val borderColor = MaterialTheme.colorScheme.outline
 
@@ -68,7 +67,6 @@ fun SignInScreen(
         }
     }
 
-    // AlertDialog для ошибок авторизации
     if (showErrorDialog) {
         AlertDialog(
             onDismissRequest = { showErrorDialog = false },
@@ -107,7 +105,6 @@ fun SignInScreen(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Используем bodyRegular14 вместо bodyMedium
             Text(
                 text = stringResource(id = R.string.details),
                 style = AppTypography.subtitleRegular16,
@@ -116,7 +113,6 @@ fun SignInScreen(
             )
         }
 
-        // Поле "Email" - используем bodyMedium14 для метки
         Text(
             text = stringResource(id = R.string.email),
             style = AppTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
@@ -150,11 +146,10 @@ fun SignInScreen(
                 focusedPlaceholderColor = hintColor,
                 unfocusedPlaceholderColor = hintColor
             ),
-            textStyle = AppTypography.bodyRegular16, // Body Regular 16 для ввода текста
+            textStyle = AppTypography.bodyRegular16,
             singleLine = true
         )
 
-        // Поле "Пароль" - используем bodyMedium14 для метки
         Text(
             text = stringResource(id = R.string.pass),
             style = AppTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
@@ -192,7 +187,7 @@ fun SignInScreen(
                 focusedPlaceholderColor = hintColor,
                 unfocusedPlaceholderColor = hintColor
             ),
-            textStyle = AppTypography.bodyRegular16, // Body Regular 16 для ввода текста
+            textStyle = AppTypography.bodyRegular16,
             singleLine = true,
             trailingIcon = {
                 IconButton(
@@ -231,7 +226,6 @@ fun SignInScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Кнопка регистрации
         DisableButton(
             text = stringResource(id = R.string.sign_in),
             onClick = { if (email.isNotEmpty() && password.isNotEmpty()) {
@@ -240,12 +234,11 @@ fun SignInScreen(
                 errorMessage = "Please fill in all fields"
                 showErrorDialog = true
             } },
-            textStyle = AppTypography.bodyMedium16 // Body Medium 16 для текста кнопки
+            textStyle = AppTypography.bodyMedium16
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Ссылка на вход
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center

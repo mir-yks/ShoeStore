@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.example.shoestore.ui.theme.AppTypography
 
 @Composable
-fun DisableButton(
+fun OnboardButtun(
     text: String,
     onClick: () -> Unit,
     enabled: Boolean = true,
@@ -28,10 +28,10 @@ fun DisableButton(
             .height(48.dp),
         shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            disabledContainerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.background,
-            disabledContentColor = MaterialTheme.colorScheme.background
+            containerColor = MaterialTheme.colorScheme.surface,
+            disabledContainerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            disabledContentColor = MaterialTheme.colorScheme.onSurface
         )
     ) {
         Text(

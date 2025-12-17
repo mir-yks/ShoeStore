@@ -4,16 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.shoeshop.ui.screens.RegisterAccountScreen
-import com.example.shoeshop.ui.screens.SignInScreen
 import com.example.shoestore.ui.screens.EmailVerificationScreen
 import com.example.shoestore.ui.screens.HomeScreen
+import com.example.shoestore.ui.screens.OnboardScreen
+import com.example.shoestore.ui.screens.RegisterAccountScreen
+import com.example.shoestore.ui.screens.SignInScreen
 
 @Composable
 fun NavigationApp(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "sign_up"
+        startDestination = "start_menu"
     ) {
         composable("sign_up") {
             RegisterAccountScreen(
@@ -23,7 +24,6 @@ fun NavigationApp(navController: NavHostController) {
         }
         composable("sign_in") {
             SignInScreen(
-                onForgotPasswordClick = { navController.navigate("forgot_password") },
                 onSignInClick = { navController.navigate("home") },
                 onSignUpClick = { navController.navigate("sign_up") }
             )
@@ -36,8 +36,15 @@ fun NavigationApp(navController: NavHostController) {
             )
         }
 
-        composable("home") {
-            HomeScreen()
+        composable("start_menu") {
+            OnboardScreen (
+                onGetStartedClick = { navController.navigate("sign_up") },
+            )
         }
+
+        composable("home") {
+            HomeScreen({},{},{})
+        }
+
     }
 }
