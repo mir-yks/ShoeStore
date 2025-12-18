@@ -4,28 +4,72 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.shoeshop.ui.screens.RegisterAccountScreen
-import com.example.shoeshop.ui.screens.SignInScreen
-import com.example.shoestore.ui.screens.EmailVerificationScreen
-import com.example.shoestore.ui.screens.HomeScreen
+import com.example.shoestore.ui.screens.*
 
 @Composable
-fun NavigationApp(navController: NavHostController) {
+fun NavigationApp(
+    navController: NavHostController,
+    startDestination: String,
+    onOnboardingFinished: () -> Unit
+) {
     NavHost(
         navController = navController,
-        startDestination = "sign_up"
+        startDestination = startDestination
     ) {
+
+        composable("start_menu") {
+            OnboardScreen(
+                onGetStartedClick = {
+                    onOnboardingFinished()
+                    navController.navigate("sign_up") {
+                        popUpTo("start_menu") { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable("sign_up") {
             RegisterAccountScreen(
                 onSignInClick = { navController.navigate("sign_in") },
                 onSignUpClick = { navController.navigate("email_verification") }
             )
         }
+
         composable("sign_in") {
             SignInScreen(
                 onForgotPasswordClick = { navController.navigate("forgot_password") },
-                onSignInClick = { navController.navigate("home") },
-                onSignUpClick = { navController.navigate("sign_up") }
+                onSignUpClick = { navController.navigate("sign_up") },
+                onSignInClick = {
+                    navController.navigate("home") {
+                        popUpTo("sign_in") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable("forgot_password") {
+            ForgotPasswordScreen(
+                onBackClick = { navController.popBackStack() },
+                onNavigateToOTP = { email -> navController.navigate("otp/$email") }
+            )
+        }
+
+        composable("otp/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            VerificationScreen(
+                email = email,
+                onVerifySuccess = { navController.navigate("new_password") }
+            )
+        }
+
+        composable("new_password") {
+            CreateNewPasswordScreen(
+                onBackClick = { navController.popBackStack() },
+                onSuccessNavigation = {
+                    navController.navigate("sign_in") {
+                        popUpTo("sign_in") { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -37,7 +81,38 @@ fun NavigationApp(navController: NavHostController) {
         }
 
         composable("home") {
-            HomeScreen()
+            HomeScreen(
+                onProductClick = { /* ... */ },
+                onCartClick = { /* ... */ },
+                onSearchClick = { /* ... */ },
+                onSettingsClick = { /* ... */ },
+
+                onProfileEditClick = { navController.navigate("edit_profile") },
+                onProfileLogoutClick = {
+                    navController.navigate("sign_in") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable("profile") {
+            ProfileScreen(
+                onEditClick = { navController.navigate("edit_profile") },
+                onBackClick = { navController.popBackStack() },
+                onLogoutClick = {
+                    navController.navigate("sign_in") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable("edit_profile") {
+            EditProfileScreen(
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = { navController.popBackStack() }
+            )
         }
     }
 }
