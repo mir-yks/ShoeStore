@@ -46,120 +46,163 @@ fun EditProfileScreen(
     val address by viewModel.address.collectAsState()
     val phone by viewModel.phone.collectAsState()
     val photoBase64 by viewModel.photoBase64.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val saveSuccess by viewModel.saveSuccess.collectAsState()
 
     LaunchedEffect(Unit) {
-        if (currentUserId != null) {
-            viewModel.loadUserProfile(currentUserId)
-        }
+        currentUserId?.let { viewModel.loadUserProfile(it) }
     }
 
     LaunchedEffect(errorMessage) {
         errorMessage?.let { msg ->
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
-            if (msg == "Профиль успешно обновлен") {
-                onSaveSuccess()
-            }
+        }
+    }
+
+    LaunchedEffect(saveSuccess) {
+        if (saveSuccess) {
+            onSaveSuccess()
+            viewModel.resetSaveSuccess()
         }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
-        if (bitmap != null) viewModel.setProfilePhoto(bitmap)
+        if (bitmap != null) {
+            viewModel.setProfilePhoto(bitmap)
+        }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (isGranted) cameraLauncher.launch()
+        if (isGranted) {
+            cameraLauncher.launch()
+        } else {
+            Toast.makeText(context, "Нужен доступ к камере", Toast.LENGTH_SHORT).show()
+        }
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Профиль", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.back),
+                            contentDescription = "Назад"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
         containerColor = Color.White
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 20.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(20.dp))
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
 
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .background(Color.LightGray)
-                    .clickable { permissionLauncher.launch(Manifest.permission.CAMERA) },
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (!photoBase64.isNullOrEmpty()) {
-                    val bitmap = remember(photoBase64) { viewModel.decodeBase64Photo(photoBase64!!) }
-                    if (bitmap != null) {
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .background(Color.LightGray)
+                        .clickable { permissionLauncher.launch(Manifest.permission.CAMERA) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (!photoBase64.isNullOrEmpty()) {
+                        val bitmap = remember(photoBase64) { viewModel.decodeBase64Photo(photoBase64!!) }
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    } else {
                         Image(
-                            bitmap = bitmap.asImageBitmap(),
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "$firstName $lastName",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "Изменить фото профиля",
+                    color = Color(0xFF48B2E7),
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .clickable { permissionLauncher.launch(Manifest.permission.CAMERA) }
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                EditProfileField(
+                    label = "Имя",
+                    value = firstName,
+                    onValueChange = { viewModel.firstName.value = it }
+                )
+                EditProfileField(
+                    label = "Фамилия",
+                    value = lastName,
+                    onValueChange = { viewModel.lastName.value = it }
+                )
+                EditProfileField(
+                    label = "Адрес",
+                    value = address,
+                    onValueChange = { viewModel.address.value = it }
+                )
+                EditProfileField(
+                    label = "Телефон",
+                    value = phone,
+                    onValueChange = { viewModel.phone.value = it }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = { currentUserId?.let { viewModel.saveChanges(it) } },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF48B2E7))
+                ) {
+                    Text("Сохранить", color = Color.White, fontSize = 14.sp)
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "$firstName $lastName",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text = "Изменить фото профиля",
-                color = Color(0xFF48B2E7),
-                fontSize = 12.sp,
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .clickable { permissionLauncher.launch(Manifest.permission.CAMERA) }
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            EditProfileField(label = "Имя", value = firstName, onValueChange = { viewModel.firstName.value = it })
-            EditProfileField(label = "Фамилия", value = lastName, onValueChange = { viewModel.lastName.value = it })
-            EditProfileField(label = "Адрес", value = address, onValueChange = { viewModel.address.value = it })
-            EditProfileField(label = "Телефон", value = phone, onValueChange = { viewModel.phone.value = it })
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = { currentUserId?.let { viewModel.saveChanges(it) } },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF48B2E7))
-            ) {
-                Text("Сохранить", color = Color.White, fontSize = 14.sp)
-            }
-
-            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
@@ -170,7 +213,11 @@ fun EditProfileField(
     value: String,
     onValueChange: (String) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+    ) {
         Text(
             text = label,
             fontSize = 14.sp,
@@ -188,17 +235,7 @@ fun EditProfileField(
                 focusedContainerColor = Color(0xFFF7F7F9),
                 unfocusedBorderColor = Color.Transparent,
                 focusedBorderColor = Color(0xFF48B2E7)
-            ),
-            trailingIcon = {
-                if (value.isNotEmpty()) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.check),
-                        contentDescription = null,
-                        tint = Color(0xFF48B2E7),
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
+            )
         )
     }
 }
