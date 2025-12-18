@@ -124,6 +124,7 @@ fun OnboardScreen(
             }
 
             OnboardButtun(
+                text = slides[pagerState.currentPage].buttonText,
                 onClick = {
                     if (!pagerState.isScrollInProgress) {
                         if (pagerState.currentPage == slides.size - 1) {
@@ -140,8 +141,7 @@ fun OnboardScreen(
                         }
                     }
                 },
-                text = slides[pagerState.currentPage].buttonText,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
