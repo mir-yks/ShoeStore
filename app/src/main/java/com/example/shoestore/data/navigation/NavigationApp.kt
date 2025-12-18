@@ -82,17 +82,37 @@ fun NavigationApp(
 
         composable("home") {
             HomeScreen(
-                onProductClick = { product -> },
-                onCartClick = { },
-                onSearchClick = { },
-                onSettingsClick = {
-                    navController.navigate("profile")
+                onProductClick = { /* ... */ },
+                onCartClick = { /* ... */ },
+                onSearchClick = { /* ... */ },
+                onSettingsClick = { /* ... */ },
+
+                onProfileEditClick = { navController.navigate("edit_profile") },
+                onProfileLogoutClick = {
+                    navController.navigate("sign_in") {
+                        popUpTo("home") { inclusive = true }
+                    }
                 }
             )
         }
 
         composable("profile") {
-            ProfileScreen()
+            ProfileScreen(
+                onEditClick = { navController.navigate("edit_profile") },
+                onBackClick = { navController.popBackStack() },
+                onLogoutClick = {
+                    navController.navigate("sign_in") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable("edit_profile") {
+            EditProfileScreen(
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = { navController.popBackStack() }
+            )
         }
     }
 }

@@ -1,14 +1,16 @@
 package com.example.shoestore.ui.screens
 
-import android.graphics.Bitmap
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,113 +20,153 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shoestore.R
+import com.example.shoestore.data.TokenStorage
 import com.example.shoestore.ui.viewmodels.ProfileViewModel
-import com.example.shoestore.ui.viewmodels.ProfileUiState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = viewModel()) {
-    val uiState = viewModel.uiState
+fun ProfileScreen(
+    onEditClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+    viewModel: ProfileViewModel = viewModel()
+) {
+    val firstName by viewModel.firstName.collectAsState()
+    val lastName by viewModel.lastName.collectAsState()
+    val address by viewModel.address.collectAsState()
+    val phone by viewModel.phone.collectAsState()
+    val photoBase64 by viewModel.photoBase64.collectAsState()
 
-    // Лаунчер для камеры
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap: Bitmap? ->
-        bitmap?.let { viewModel.onPhotoCaptured(it) }
+    LaunchedEffect(Unit) {
+        TokenStorage.userId?.let { viewModel.loadUserProfile(it) }
     }
 
-    LaunchedEffect(Unit) { viewModel.loadProfile() }
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Профиль", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+                actions = {
+                    IconButton(
+                        onClick = onEditClick,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF48B2E7))
+                            .size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Редактировать",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
+            )
+        },
+        containerColor = Color.White
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(20.dp))
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Профиль", style = MaterialTheme.typography.headlineSmall, modifier = Modifier.weight(1f))
-                IconButton(onClick = { viewModel.isEditing = !viewModel.isEditing }) {
-                    Icon(painterResource(id = R.drawable.edit), contentDescription = null)
-                }
-            }
-
-            // Блок аватара с камерой
             Box(
                 modifier = Modifier
                     .size(100.dp)
-                    .align(Alignment.CenterHorizontally)
                     .clip(CircleShape)
-                    .background(Color.LightGray)
-                    .clickable { cameraLauncher.launch(null) } // Запуск камеры
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
             ) {
-                if (viewModel.bitmapPhoto != null) {
-                    Image(
-                        bitmap = viewModel.bitmapPhoto!!.asImageBitmap(),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+                if (!photoBase64.isNullOrEmpty()) {
+                    val bitmap = remember(photoBase64) {
+                        try {
+                            val decodedBytes = Base64.decode(photoBase64, Base64.DEFAULT)
+                            BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                        } catch (e: Exception) { null }
+                    }
+                    bitmap?.let {
+                        Image(
+                            bitmap = it.asImageBitmap(),
+                            contentDescription = "Аватар",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 } else {
-                    Icon(
-                        painterResource(id = R.drawable.profile), // замени на свою иконку
-                        contentDescription = null,
-                        modifier = Modifier.align(Alignment.Center)
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        contentDescription = "Аватар",
+                        modifier = Modifier.size(60.dp)
                     )
                 }
             }
 
-            EditableField("Имя", viewModel.name, viewModel.isEditing) { viewModel.name = it }
-            EditableField("Фамилия", viewModel.lastName, viewModel.isEditing) { viewModel.lastName = it }
-            EditableField("Адрес", viewModel.address, viewModel.isEditing) { viewModel.address = it }
-            EditableField("Телефон", viewModel.phone, viewModel.isEditing) { viewModel.phone = it }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = if ("$firstName $lastName".isNotBlank()) "$firstName $lastName" else "Пользователь",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (viewModel.isEditing) {
-                Button(
-                    onClick = { viewModel.saveProfile() },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) { Text("Сохранить изменения") }
-            }
-        }
-
-        if (uiState is ProfileUiState.Loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
-
-        if (uiState is ProfileUiState.Error) {
-            AlertDialog(
-                onDismissRequest = { viewModel.dismissError() },
-                confirmButton = { TextButton(onClick = { viewModel.dismissError() }) { Text("OK") } },
-                title = { Text("Ошибка") },
-                text = { Text(uiState.message) }
+            Image(
+                painter = painterResource(id = R.drawable.barcode),
+                contentDescription = "Штрих-код",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            ReadOnlyField(label = "Имя", value = firstName)
+            ReadOnlyField(label = "Фамилия", value = lastName)
+            ReadOnlyField(label = "Адрес", value = address)
+            ReadOnlyField(label = "Телефон", value = phone)
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditableField(label: String, value: String, isEditable: Boolean, onValueChange: (String) -> Unit) {
-    Column(modifier = Modifier.padding(top = 16.dp)) {
-        Text(text = label, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
-        if (isEditable) {
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+fun ReadOnlyField(label: String, value: String) {
+    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Black.copy(alpha = 0.8f),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(Color(0xFFF7F7F9))
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = value.ifEmpty { "Не указано" },
+                fontSize = 14.sp,
+                color = Color.Black
             )
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .background(Color(0xFFF7F7F9), RoundedCornerShape(12.dp))
-                    .padding(horizontal = 16.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(text = value)
-            }
         }
     }
 }
