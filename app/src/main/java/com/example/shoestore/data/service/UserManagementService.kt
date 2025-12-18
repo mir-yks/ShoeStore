@@ -1,5 +1,7 @@
 package com.example.shoestore.data.service
 
+import com.example.shoestore.data.model.FavouriteDto
+import com.example.shoestore.data.model.ProductDto
 import com.example.shoestore.data.model.SignInRequest
 import com.example.shoestore.data.model.SignInResponse
 import com.example.shoestore.data.model.SignUpRequest
@@ -9,6 +11,7 @@ import com.example.shoestore.data.model.VerifyOtpRequest
 import com.example.shoestore.data.model.VerifyOtpResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -71,6 +74,37 @@ interface UserManagementService {
         @Body profile: Map<String, String?>,
         @Header("Authorization") token: String,
         @Header("apikey") apiKey: String
+    ): Response<Unit>
+
+    @GET("rest/v1/products")
+    suspend fun getProducts(
+        @Header("apikey") apiKey: String = API_KEY
+    ): Response<List<ProductDto>>
+
+    @GET("rest/v1/products")
+    suspend fun getProductById(
+        @Query("id") idFilter: String,
+        @Header("apikey") apiKey: String = API_KEY
+    ): Response<List<ProductDto>>
+
+    @GET("rest/v1/favourite")
+    suspend fun getFavouriteForUser(
+        @Query("user_id") userFilter: String,
+        @Header("apikey") apiKey: String = API_KEY
+    ): Response<List<FavouriteDto>>
+
+    @POST("rest/v1/favourite")
+    suspend fun addToFavourite(
+        @Body body: Map<String, String>,
+        @Header("apikey") apiKey: String = API_KEY,
+        @Header("Prefer") prefer: String = "return=minimal"
+    ): Response<Unit>
+
+    @DELETE("rest/v1/favourite")
+    suspend fun removeFromFavourite(
+        @Query("user_id") userFilter: String,
+        @Query("product_id") productFilter: String,
+        @Header("apikey") apiKey: String = API_KEY
     ): Response<Unit>
 
 }
