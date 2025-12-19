@@ -23,9 +23,10 @@ import com.example.shoestore.data.model.OnboardingSlide
 import com.example.shoestore.ui.components.OnboardButtun
 import com.example.shoestore.ui.theme.AppTypography
 import com.example.shoestore.ui.theme.ShoeShopTheme
+import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import com.example.shoestore.R
-
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardScreen(
     onGetStartedClick: () -> Unit
@@ -57,20 +58,20 @@ fun OnboardScreen(
         )
     )
 
-    var currentPage by remember { mutableStateOf(0) }
+    val pagerState = rememberPagerState(initialPage = 0)
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            slides.forEachIndexed { index, slide ->
-                if (index == currentPage) {
-                    OnboardingSlideItem(
-                        slide = slide,
-                        isFirstSlide = index == 0,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
+    Box(modifier = Modifier.fillMaxSize     ()) {
+        HorizontalPager(
+            count = slides.size,
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            OnboardingSlideItem(
+                slide = slides[page],
+                isFirstSlide = page == 0,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         Box(
@@ -105,9 +106,9 @@ fun OnboardScreen(
             ) {
                 repeat(slides.size) { index ->
                     val size = animateDpAsState(
-                        targetValue = if (currentPage == index) 12.dp else 8.dp
+                        targetValue = if (pagerState.currentPage == index) 12.dp else 8.dp
                     )
-                    val dotColor = if (currentPage == index) {
+                    val dotColor = if (pagerState.currentPage == index) {
                         Color.White
                     } else {
                         Color.White.copy(alpha = 0.5f)
@@ -124,19 +125,29 @@ fun OnboardScreen(
 
             OnboardButtun(
                 onClick = {
-                    if (currentPage == slides.size - 1) {
-                        onGetStartedClick()
-                    } else {
-                        currentPage++
+                    if (!pagerState.isScrollInProgress) {
+                        if (pagerState.currentPage == slides.size - 1) {
+                            onGetStartedClick()
+                        } else {
+                            coroutineScope.launch {
+                                val next = (pagerState.currentPage + 1).coerceAtMost(slides.size - 1)
+                                try {
+                                    pagerState.animateScrollToPage(next)
+                                } catch (e: Exception) {
+                                    pagerState.scrollToPage(next)
+                                }
+                            }
+                        }
                     }
                 },
-                text = slides[currentPage].buttonText,
+                text = slides[pagerState.currentPage].buttonText,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OnboardingSlideItem(
     slide: OnboardingSlide,
@@ -183,6 +194,7 @@ private fun FirstSlideContent(slide: OnboardingSlide) {
             .padding(horizontal = 24.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
+
         Image(
             painter = painterResource(id = slide.imageRes),
             contentDescription = slide.title,
@@ -191,6 +203,7 @@ private fun FirstSlideContent(slide: OnboardingSlide) {
                 .padding(16.dp),
             contentScale = ContentScale.Fit
         )
+
     }
 }
 
