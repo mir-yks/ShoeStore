@@ -96,4 +96,6 @@
     <string name="email_address">Email адрес</string>
     <string name="register_account">Регистрация</string>
     <string name="already_have_account">Уже есть аккаунт?</string>
+    <string name="popular_empty">Нет популярных товаров</string>
+
 </resources>
