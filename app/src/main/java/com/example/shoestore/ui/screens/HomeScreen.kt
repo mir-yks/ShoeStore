@@ -39,9 +39,9 @@ fun HomeScreen(
     onCartClick: () -> Unit,
     onSearchClick: () -> Unit,
     onSettingsClick: () -> Unit = {},
-    // ДОБАВИЛ ЭТИ ДВА ПАРАМЕТРА (нужны для профиля)
     onProfileEditClick: () -> Unit = {},
-    onProfileLogoutClick: () -> Unit = {}
+    onProfileLogoutClick: () -> Unit = {},
+    onOpenCatalog: () -> Unit = {}
 ) {
     var selected by rememberSaveable { mutableIntStateOf(0) }
 
@@ -50,7 +50,9 @@ fun HomeScreen(
     val categories = listOf(
         Category("Все", isSelected = true),
         Category("Outdoor", isSelected = false),
-        Category("Tennis", isSelected = false)
+        Category("Tennis", isSelected = false),
+        Category("Men", isSelected = false),
+        Category("Women", isSelected = false)
     )
 
     val popularProducts = listOf(
@@ -61,7 +63,6 @@ fun HomeScreen(
             originalPrice = "P850.00",
             category = "BEST SELLER",
             imageUrl = "",
-            // Вернул твои ресурсы
             imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
         ),
         Product(
@@ -100,7 +101,6 @@ fun HomeScreen(
                     .height(80.dp)
                     .fillMaxWidth()
             ) {
-                // Вернул твой фон
                 Image(
                     painter = painterResource(id = R.drawable.vector_1789),
                     contentDescription = null,
@@ -120,7 +120,7 @@ fun HomeScreen(
                         IconButton(onClick = { selected = 0 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.home),
-                                contentDescription = "Home",
+                                contentDescription = stringResource(R.string.home),
                                 tint = if (selected == 0) MaterialTheme.colorScheme.primary else Color.Black
                             )
                         }
@@ -130,7 +130,7 @@ fun HomeScreen(
                         IconButton(onClick = { selected = 1 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.favorite),
-                                contentDescription = "Favorites",
+                                contentDescription = stringResource(R.string.favourite),
                                 tint = if (selected == 1) MaterialTheme.colorScheme.primary else Color.Black
                             )
                         }
@@ -150,7 +150,7 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.bag_2),
-                                contentDescription = "Cart",
+                                contentDescription = stringResource(R.string.cart),
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -160,7 +160,7 @@ fun HomeScreen(
                         IconButton(onClick = { selected = 2 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notification),
-                                contentDescription = "Notification",
+                                contentDescription = stringResource(R.string.notifications),
                                 tint = if (selected == 2) MaterialTheme.colorScheme.primary else Color.Black
                             )
                         }
@@ -170,7 +170,7 @@ fun HomeScreen(
                         IconButton(onClick = { selected = 3 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.profile),
-                                contentDescription = "Profile",
+                                contentDescription = stringResource(R.string.profile),
                                 tint = if (selected == 3) MaterialTheme.colorScheme.primary else Color.Black
                             )
                         }
@@ -218,14 +218,14 @@ fun HomeScreen(
                                     .height(48.dp),
                                 placeholder = {
                                     Text(
-                                        text = "Поиск...",
+                                        text = stringResource(id = R.string.search),
                                         style = AppTypography.bodyRegular14
                                     )
                                 },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Search,
-                                        contentDescription = "Поиск",
+                                        contentDescription = stringResource(R.string.search),
                                         tint = Color.Gray
                                     )
                                 },
@@ -251,7 +251,7 @@ fun HomeScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.sliders),
-                                contentDescription = "Настройки",
+                                contentDescription = stringResource(R.string.settings),
                                 tint = Color.White,
                                 modifier = Modifier.size(24.dp)
                             )
@@ -284,8 +284,8 @@ fun HomeScreen(
                                 PopularSection(
                                     products = popularProducts,
                                     onProductClick = onProductClick,
-                                    onFavoriteClick = { product ->
-                                    }
+                                    onFavoriteClick = { product -> },
+                                    onOpenCatalog = onOpenCatalog
                                 )
                             }
 
@@ -300,7 +300,7 @@ fun HomeScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Избранное",
+                                text = stringResource(R.string.favourite),
                                 style = AppTypography.headingRegular32
                             )
                         }
@@ -311,7 +311,7 @@ fun HomeScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Уведомления",
+                                text = stringResource(R.string.notifications),
                                 style = AppTypography.headingRegular32
                             )
                         }
@@ -329,10 +329,6 @@ fun HomeScreen(
         }
     }
 }
-
-// ... остальной код CategorySection, CategoryChip, PopularSection, PromotionsSection, Preview
-// (оставь их как у тебя было, я их не менял в твоем исходнике, если они ниже в файле - просто не удаляй их)
-
 @Composable
 private fun CategorySection(
     categories: List<Category>,
@@ -385,7 +381,8 @@ private fun CategoryChip(
 private fun PopularSection(
     products: List<Product>,
     onProductClick: (Product) -> Unit,
-    onFavoriteClick: (Product) -> Unit
+    onFavoriteClick: (Product) -> Unit,
+    onOpenCatalog: () -> Unit
 ) {
     Column {
         Row(
@@ -398,11 +395,10 @@ private fun PopularSection(
                 style = AppTypography.bodyMedium16,
             )
             Text(
-                text = "Все",
+                text = stringResource(id = R.string.all),
                 style = AppTypography.bodyRegular12,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.clickable {
-                }
+                modifier = Modifier.clickable { onOpenCatalog() }
             )
         }
 
@@ -450,7 +446,7 @@ private fun PromotionsSection() {
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Summer Sale",
+                        text = stringResource(R.string.summer_sale_title),
                         style = AppTypography.headingRegular32.copy(
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
@@ -461,7 +457,7 @@ private fun PromotionsSection() {
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "15% OFF",
+                        text = stringResource(R.string.summer_sale_discount_15),
                         style = AppTypography.headingRegular32.copy(
                             fontSize = 32.sp,
                             fontWeight = FontWeight.ExtraBold,
@@ -478,7 +474,7 @@ private fun PromotionsSection() {
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Text(
-                        text = "Смотреть",
+                        text = stringResource(R.string.see),
                         style = AppTypography.bodyMedium16.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF4CAF50)

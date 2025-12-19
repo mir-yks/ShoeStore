@@ -72,5 +72,18 @@
     <string name="create">Create Account</string>
     <string name="cancel">Cancel</string>
     <string name="verify">Verify Email</string>
-
+    <string name="see">See</string>
+    <string name="summer_sale_title">Summer Sale</string>
+    <string name="summer_sale_discount_15">15% OFF</string>
+    <string name="catalog_title">Catalog</string>
+    <string name="catalog_empty">Catalog is empty</string>
+    <string name="category_all">All</string>
+    <string name="category_outdoor">Outdoor</string>
+    <string name="category_tennis">Tennis</string>
+    <string name="category_men">Men</string>
+    <string name="category_women">Women</string>
+    <string name="verify_email_title">Verify Your Email</string>
+    <string name="enter_otp_instruction">Enter the 6-digit code from your email</string>
+    <string name="email_not_found">Email not found. Please sign up again.</string>
+    <string name="enter_otp_error">Please enter 6-digit OTP code</string>
 </resources>

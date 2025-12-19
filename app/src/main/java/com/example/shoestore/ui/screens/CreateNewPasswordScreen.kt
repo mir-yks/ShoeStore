@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -54,18 +55,18 @@ fun CreateNewPasswordScreen(
         Spacer(modifier = Modifier.height(40.dp))
 
         Text(
-            text = "Новый пароль",
+            text = stringResource(R.string.set_new_password),
             style = AppTypography.headingRegular32,
             color = Text
         )
         Text(
-            text = "Пожалуйста, введите новый пароль",
+            text = stringResource(R.string.set_password_description),
             style = AppTypography.bodyRegular16,
             color = SubtextDark,
             modifier = Modifier.padding(top = 8.dp, bottom = 40.dp)
         )
 
-        Text("Пароль", style = AppTypography.bodyMedium16, color = Text)
+        Text(stringResource(R.string.pass), style = AppTypography.bodyMedium16, color = Text)
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
             value = password,
@@ -95,7 +96,7 @@ fun CreateNewPasswordScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Повторите пароль", style = AppTypography.bodyMedium16, color = Text)
+        Text(stringResource(R.string.confirm_password), style = AppTypography.bodyMedium16, color = Text)
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
             value = confirmPassword,
@@ -139,7 +140,7 @@ fun CreateNewPasswordScreen(
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally), color = Accent)
         } else {
             DisableButton(
-                text = "Сохранить",
+                text = stringResource(R.string.save_now),
                 onClick = {
                     if (password.isEmpty() || confirmPassword.isEmpty()) {
                         errorMessage = "Поля не могут быть пустыми"

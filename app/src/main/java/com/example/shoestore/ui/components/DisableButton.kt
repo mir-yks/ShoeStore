@@ -15,7 +15,7 @@ import com.example.shoestore.ui.theme.AppTypography
 @Composable
 fun DisableButton(
     text: String,
-    onClick: () -> Unit,
+    onClick: @Composable () -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = AppTypography.bodyRegular14

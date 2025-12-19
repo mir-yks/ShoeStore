@@ -1,4 +1,4 @@
-package com.example.shoestore.ui.viewmodels
+package com.example.shoestore.ui.viewmodel
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
