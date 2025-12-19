@@ -81,7 +81,7 @@ fun EmailVerificationScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Verify Your Email",
+            text = stringResource(R.string.verify),
             style = MaterialTheme.typography.headlineLarge,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
@@ -89,7 +89,7 @@ fun EmailVerificationScreen(
         )
 
         Text(
-            text = "We sent a 6-digit verification code to:",
+            text = stringResource(R.string.check_your_email),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -106,7 +106,7 @@ fun EmailVerificationScreen(
         )
 
         Text(
-            text = "Enter OTP Code",
+            text = stringResource(R.string.otp_code),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -131,7 +131,7 @@ fun EmailVerificationScreen(
         )
 
         Text(
-            text = "Enter the 6-digit code from your email",
+            text = stringResource(R.string.check_email_for_code),
             style = MaterialTheme.typography.bodySmall,
             color = Color(0xFFA7A7A7),
             modifier = Modifier.padding(bottom = 32.dp)
@@ -165,10 +165,10 @@ fun EmailVerificationScreen(
                 Text(
                     buildAnnotatedString {
                         withStyle(style = SpanStyle(color = Color(0xFFA7A7A7))) {
-                            append("Already verified? ")
+                            append(stringResource(R.string.have_acc))
                         }
                         withStyle(style = SpanStyle(color = Color(0xFF0560FA))) {
-                            append("Sign In")
+                            append(stringResource(R.string.sign_in))
                         }
                     },
                     fontSize = 14.sp

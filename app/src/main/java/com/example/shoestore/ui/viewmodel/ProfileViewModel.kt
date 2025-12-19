@@ -1,4 +1,4 @@
-package com.example.shoestore.ui.viewmodels
+package com.example.shoestore.ui.viewmodel
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import androidx.core.graphics.scale
 
 class ProfileViewModel : ViewModel() {
 
@@ -116,11 +117,30 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun setProfilePhoto(bitmap: Bitmap) {
+        val resizedBitmap = resizeBitmap(bitmap, 800)
+
         val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream)
+
         val byteArray = outputStream.toByteArray()
         photoBase64.value = Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
+
+    private fun resizeBitmap(bitmap: Bitmap, maxSize: Int): Bitmap {
+        var width = bitmap.width
+        var height = bitmap.height
+
+        val bitmapRatio = width.toFloat() / height.toFloat()
+        if (bitmapRatio > 1) {
+            width = maxSize
+            height = (width / bitmapRatio).toInt()
+        } else {
+            height = maxSize
+            width = (height * bitmapRatio).toInt()
+        }
+        return bitmap.scale(width, height)
+    }
+
 
     fun decodeBase64Photo(base64Str: String): Bitmap? {
         return try {

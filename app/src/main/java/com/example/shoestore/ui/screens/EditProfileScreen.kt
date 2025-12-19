@@ -23,13 +23,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shoestore.R
 import com.example.shoestore.data.TokenStorage
-import com.example.shoestore.ui.viewmodels.ProfileViewModel
+import com.example.shoestore.ui.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,7 +89,7 @@ fun EditProfileScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Профиль", fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.profile), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -157,7 +158,7 @@ fun EditProfileScreen(
                 )
 
                 Text(
-                    text = "Изменить фото профиля",
+                    text = stringResource(R.string.change_profile_picture),
                     color = Color(0xFF48B2E7),
                     fontSize = 12.sp,
                     modifier = Modifier
@@ -198,7 +199,7 @@ fun EditProfileScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF48B2E7))
                 ) {
-                    Text("Сохранить", color = Color.White, fontSize = 14.sp)
+                    Text(stringResource(R.string.save_now), color = Color.White, fontSize = 14.sp)
                 }
 
                 Spacer(modifier = Modifier.height(40.dp))
