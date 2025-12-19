@@ -10,6 +10,7 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
 import com.example.shoestore.data.RetrofitInstance
+import com.example.shoestore.data.TokenStorage
 import com.example.shoestore.data.model.SignInRequest
 
 class SignInViewModel : ViewModel() {
@@ -62,6 +63,7 @@ class SignInViewModel : ViewModel() {
     }
 
     private fun saveAuthToken(token: String) {
+        TokenStorage.accessToken = token
         Log.d("Auth", "Access token saved: ${token.take(10)}...")
     }
 
@@ -70,7 +72,8 @@ class SignInViewModel : ViewModel() {
     }
 
     private fun saveUserData(user: com.example.shoestore.data.model.User) {
-        Log.d("Auth", "User data saved: ${user.email}")
+        TokenStorage.userId = user.id
+        Log.d("Auth", "User ID saved: ${user.id}")
     }
 
     fun resetState() {

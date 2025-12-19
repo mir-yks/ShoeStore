@@ -38,7 +38,10 @@ fun HomeScreen(
     onProductClick: (Product) -> Unit,
     onCartClick: () -> Unit,
     onSearchClick: () -> Unit,
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    // ДОБАВИЛ ЭТИ ДВА ПАРАМЕТРА (нужны для профиля)
+    onProfileEditClick: () -> Unit = {},
+    onProfileLogoutClick: () -> Unit = {}
 ) {
     var selected by rememberSaveable { mutableIntStateOf(0) }
 
@@ -58,7 +61,8 @@ fun HomeScreen(
             originalPrice = "P850.00",
             category = "BEST SELLER",
             imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3 // Добавьте ресурс картинки
+            // Вернул твои ресурсы
+            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
         ),
         Product(
             id = "2",
@@ -96,6 +100,7 @@ fun HomeScreen(
                     .height(80.dp)
                     .fillMaxWidth()
             ) {
+                // Вернул твой фон
                 Image(
                     painter = painterResource(id = R.drawable.vector_1789),
                     contentDescription = null,
@@ -312,13 +317,21 @@ fun HomeScreen(
                         }
                     }
                     3 -> {
-                        ProfileScreen()
+                        // ВОТ ЗДЕСЬ ИСПРАВЛЕНИЕ: ПЕРЕДАЕМ ПАРАМЕТРЫ
+                        ProfileScreen(
+                            onEditClick = onProfileEditClick,
+                            onBackClick = { selected = 0 },
+                            onLogoutClick = onProfileLogoutClick
+                        )
                     }
                 }
             }
         }
     }
 }
+
+// ... остальной код CategorySection, CategoryChip, PopularSection, PromotionsSection, Preview
+// (оставь их как у тебя было, я их не менял в твоем исходнике, если они ниже в файле - просто не удаляй их)
 
 @Composable
 private fun CategorySection(
