@@ -1,10 +1,13 @@
 package com.example.shoestore.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,38 +28,38 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shoeshop.ui.components.BackButton
 import com.example.shoeshop.ui.components.DisableButton
 import com.example.shoestore.R
+import com.example.shoestore.ui.viewmodels.RegisterAccountViewModel
 
 @Composable
 fun RegisterAccountScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: RegisterAccountViewModel = viewModel(),
+    onNavigateToSignIn: () -> Unit = {}
 ) {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var isChecked by remember { mutableStateOf(false) }
-
-    val isFormValid = name.isNotBlank() &&
-            email.isNotBlank() &&
-            password.isNotBlank() &&
-            isChecked
+    val state = viewModel.uiState
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 23.dp)
-            .background(Color.White),
-        verticalArrangement = Arrangement.Center,
+            .background(Color.White)
+            .imePadding()
+            .systemBarsPadding()
+            .padding(horizontal = 23.dp),
+        verticalArrangement = Arrangement.Top,
     ) {
-        BackButton(
-            onClick = { }
-        )
+        Box(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
+            BackButton(onClick = onNavigateToSignIn)
+        }
 
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -66,183 +69,169 @@ fun RegisterAccountScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-
             Text(
                 text = stringResource(id = R.string.details),
                 style = MaterialTheme.typography.bodyMedium,
                 color = colorResource(id = R.color.subTextDark),
                 modifier = Modifier.padding(bottom = 40.dp)
             )
-        }
 
-        Text(
-            text = stringResource(id = R.string.name),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            placeholder = { Text("xxxxxxxx") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
-            shape = MaterialTheme.shapes.medium,
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = colorResource(id = R.color.subTextLight),
-                focusedBorderColor = colorResource(id = R.color.subTextLight)
-            )
-        )
-
-        Text(
-            text = stringResource(id = R.string.email),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            placeholder = { Text("xyz@mail.com") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
-            shape = MaterialTheme.shapes.medium,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = colorResource(id = R.color.subTextLight),
-                focusedBorderColor = colorResource(id = R.color.subTextLight)
-            )
-        )
-
-        Text(
-            text = stringResource(id = R.string.password),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            placeholder = { Text("......") },
-            visualTransformation = if (passwordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
-            shape = MaterialTheme.shapes.medium,
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = colorResource(id = R.color.subTextLight),
-                focusedBorderColor = colorResource(id = R.color.subTextLight)
-            ),
-            trailingIcon = {
-                IconButton(
-                    onClick = { passwordVisible = !passwordVisible }
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            id = if (passwordVisible) {
-                                R.drawable.eye_close // Предполагаем, что у вас есть эти иконки
-                            } else {
-                                R.drawable.eye_open
-                            }
-                        ),
-                        contentDescription = if (passwordVisible) {
-                            "Скрыть пароль"
-                        } else {
-                            "Показать пароль"
-                        },
-                        tint = colorResource(id = R.color.subTextDark)
-                    )
-                }
-            }
-        )
-
-        // Чекбокс с кастомной иконкой
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 32.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Кастомный чекбокс
-            Box(
+            Text(
+                text = stringResource(id = R.string.name),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
                 modifier = Modifier
-                    .size(24.dp)
-                    .clip(MaterialTheme.shapes.small)
-                    .selectable(
-                        selected = isChecked,
-                        onClick = { isChecked = !isChecked },
-                        role = Role.Checkbox
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isChecked) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.policy_check), // Используйте вашу иконку галочки
-                        contentDescription = "Выбрано",
-                        modifier = Modifier.size(16.dp),
-                        tint = colorResource(id = R.color.accent)
-                    )
-                } else {
-                    // Рамка когда не выбрано
-                    androidx.compose.foundation.BorderStroke(
-                        width = 2.dp,
-                        color = colorResource(id = R.color.subTextLight)
-                    ).let { border ->
-                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clip(MaterialTheme.shapes.small)
-                                .border(border, MaterialTheme.shapes.small)
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+            OutlinedTextField(
+                value = state.name,
+                onValueChange = viewModel::updateName,
+                placeholder = { Text("xxxxxxxx") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp),
+                shape = MaterialTheme.shapes.medium
+            )
+
+            Text(
+                text = stringResource(id = R.string.email),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+            OutlinedTextField(
+                value = state.email,
+                onValueChange = viewModel::updateEmail,
+                placeholder = { Text("xyz@mail.com") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                isError = state.emailError
+            )
+            if (state.emailError) {
+                Text(
+                    text = "Некорректный формат email. (name@domain.xx)",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 4.dp, bottom = 12.dp)
+                )
+            } else {
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+
+            Text(
+                text = stringResource(id = R.string.password),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+            OutlinedTextField(
+                value = state.password,
+                onValueChange = viewModel::updatePassword,
+                placeholder = { Text("......") },
+                visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp),
+                shape = MaterialTheme.shapes.medium,
+                trailingIcon = {
+                    IconButton(
+                        onClick = viewModel::togglePasswordVisibility
+                    ) {
+                        Icon(
+
+                            painter = painterResource(
+                                id = if (state.isPasswordVisible) R.drawable.eye_open else R.drawable.eye_close
+                            ),
+                            contentDescription = if (state.isPasswordVisible) "Скрыть пароль" else "Показать пароль",
+                            tint = colorResource(id = R.color.subTextDark)
                         )
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Text(
-                text = stringResource(id = R.string.personal_data),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colorResource(id = R.color.hint),
-                modifier = Modifier.weight(1f)
             )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(MaterialTheme.shapes.small)
+                        .selectable(
+                            selected = state.isTermsAccepted,
+                            onClick = viewModel::toggleTermsAccepted,
+                            role = Role.Checkbox
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.isTermsAccepted) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.policy_check),
+                            contentDescription = "Выбрано",
+                            modifier = Modifier.size(16.dp),
+                            tint = colorResource(id = R.color.accent)
+                        )
+                    } else {
+                        BorderStroke(
+                            width = 2.dp,
+                            color = colorResource(id = R.color.subTextLight)
+                        ).let { border ->
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clip(MaterialTheme.shapes.small)
+                                    .border(border, MaterialTheme.shapes.small)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Text(
+                    text = stringResource(id = R.string.personal_data),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colorResource(id = R.color.hint),
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(100.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Используем ваш компонент DisableButton
         DisableButton(
             text = stringResource(id = R.string.sign_up),
             onClick = {
-                // Отправка формы
+                viewModel.register(onNavigateToSignIn)
             },
-            enabled = isFormValid
+            enabled = state.isFormValid
         )
 
         Spacer(modifier = Modifier.height(10.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             TextButton(
-                onClick = {},
+                onClick = onNavigateToSignIn,
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     buildAnnotatedString {
                         withStyle(style = SpanStyle(color = colorResource(id = R.color.hint))) {
-                            append(stringResource(id = R.string.log_in))
+                            append(stringResource(id = R.string.log_in)) // Already Have Account? Log In
                         }
                     },
                     fontSize = 14.sp
@@ -250,11 +239,35 @@ fun RegisterAccountScreen(
             }
         }
     }
+
+    if (state.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = colorResource(id = R.color.accent))
+        }
+    }
+
+    state.dialogMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = viewModel::dismissDialog,
+            title = { Text("Ошибка") },
+            text = { Text(message) },
+            confirmButton = {
+                Button(onClick = viewModel::dismissDialog) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun RegisterAccountScreenPreview() {
+private fun RegisterAccountScreenPreview() {
     MaterialTheme {
         RegisterAccountScreen()
     }
