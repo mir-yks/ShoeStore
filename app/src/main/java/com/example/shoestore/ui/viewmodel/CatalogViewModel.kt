@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shoestore.data.RetrofitInstance
 import com.example.shoestore.data.mapper.ProductImageMapper
+import com.example.shoestore.data.mapper.categoryNameFromId
 import com.example.shoestore.data.model.Product
 import com.example.shoestore.data.model.ProductDto
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,31 +15,31 @@ class CatalogViewModel : ViewModel() {
 
     private val api = RetrofitInstance.userManagementService
 
-    private val _products = MutableStateFlow<List<Product>>(emptyList())
-    val products = _products.asStateFlow()
+    private val products = MutableStateFlow<List<Product>>(emptyList())
+    val productsFlow = products.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    private val isLoading = MutableStateFlow(false)
+    val isLoadingFlow = isLoading.asStateFlow()
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error = _error.asStateFlow()
+    private val error = MutableStateFlow<String?>(null)
+    val errorFlow = error.asStateFlow()
 
     fun loadCatalog() {
         viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
+            isLoading.value = true
+            error.value = null
             try {
                 val response = api.getProducts()
                 if (response.isSuccessful) {
                     val list = response.body().orEmpty()
-                    _products.value = list.map { it.toUi() }
+                    products.value = list.map { it.toUi() }
                 } else {
-                    _error.value = "Ошибка загрузки каталога: ${response.code()}"
+                    error.value = response.code().toString()
                 }
             } catch (e: Exception) {
-                _error.value = "Ошибка сети: ${e.message}"
+                error.value = e.message
             } finally {
-                _isLoading.value = false
+                isLoading.value = false
             }
         }
     }
@@ -53,12 +54,4 @@ class CatalogViewModel : ViewModel() {
         imageResId = ProductImageMapper.productImages[id] ?: 0,
         description = description
     )
-
-    fun categoryNameFromId(id: String?): String = when (id) {
-        "ea4ed603-8cbe-4d57-a359-b6b843a645bc" -> "Outdoor"
-        "4f3a690b-41bf-4fca-8ffc-67cc385c6637" -> "Tennis"
-        "76ab9d74-7d5b-4dee-9c67-6ed4019fa202" -> "Men"
-        "8143b506-d70a-41ec-a5eb-3cf09627da9e" -> "Women"
-        else -> "All"
-    }
 }

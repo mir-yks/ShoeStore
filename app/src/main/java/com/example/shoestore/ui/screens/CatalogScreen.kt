@@ -58,9 +58,10 @@ fun CatalogScreen(
     viewModel: CatalogViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val products by viewModel.products.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val error by viewModel.error.collectAsState()
+
+    val products by viewModel.productsFlow.collectAsState()
+    val isLoading by viewModel.isLoadingFlow.collectAsState()
+    val error by viewModel.errorFlow.collectAsState()
 
     var selectedCategory by remember { mutableStateOf("All") }
 
