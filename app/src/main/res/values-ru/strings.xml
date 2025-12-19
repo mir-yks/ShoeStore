@@ -46,7 +46,7 @@
     <string name="checkout">Оформить заказ</string>
     <string name="contact_information">Контактная информация</string>
     <string name="address">Адрес</string>
-    <string name="phone_number">телефон</string>
+    <string name="phone_number">Телефон</string>
     <string name="payment_method">Способ оплаты</string>
     <string name="min_ago">мин назад</string>
     <string name="open">Открыть</string>
@@ -87,4 +87,13 @@
     <string name="enter_otp_instruction">Введите 6-значный код из письма</string>
     <string name="email_not_found">Email не найден. Зарегистрируйтесь снова.</string>
     <string name="enter_otp_error">Введите 6-значный OTP код</string>
+    <string name="back_button">Назад</string>
+    <string name="hide">Скрыть</string>
+    <string name="read_more">Подробнее</string>
+    <string name="no_description">Описание отсутствует</string>
+    <string name="edit_profile">Редактировать</string>
+    <string name="change_photo">Сменить фото</string>
+    <string name="email_address">Email адрес</string>
+    <string name="register_account">Регистрация</string>
+    <string name="already_have_account">Уже есть аккаунт?</string>
 </resources>

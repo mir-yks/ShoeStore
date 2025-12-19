@@ -40,11 +40,10 @@ fun VerificationScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
 
-    // Таймер (ТЗ №24)
     var timeLeft by remember { mutableIntStateOf(30) }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus() // Авто-фокус при входе
+        focusRequester.requestFocus()
         while (timeLeft > 0) {
             delay(1000L)
             timeLeft--
