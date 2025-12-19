@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shoestore.data.model.Product
 import com.example.shoestore.ui.components.ProductCard
 import com.example.shoestore.ui.theme.AppTypography
+import com.example.shoestore.ui.theme.ShoeShopTheme
 import com.example.shoestore.ui.viewmodel.CatalogViewModel
 import com.example.shoestore.R
 
@@ -44,46 +45,48 @@ fun CatalogScreen(
         error?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.catalog_title), style = AppTypography.headingRegular32) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
-            )
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
-
-            if (!isLoading && products.isEmpty() && error == null) {
-                Text(
-                    text = stringResource(R.string.catalog_empty),
-                    modifier = Modifier.align(Alignment.Center),
-                    style = AppTypography.bodyMedium16
+    ShoeShopTheme { // Подключение темы
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.catalog_title), style = AppTypography.headingRegular32) },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
                 )
             }
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
 
-            if (products.isNotEmpty()) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(products) { product ->
-                        ProductCard(
-                            product = product,
-                            onProductClick = { onProductClick(product) },
-                            onFavoriteClick = { }
-                        )
+                if (!isLoading && products.isEmpty() && error == null) {
+                    Text(
+                        text = stringResource(R.string.catalog_empty),
+                        modifier = Modifier.align(Alignment.Center),
+                        style = AppTypography.bodyMedium16
+                    )
+                }
+
+                if (products.isNotEmpty()) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(products) { product ->
+                            ProductCard(
+                                product = product,
+                                onProductClick = { onProductClick(product) },
+                                onFavoriteClick = { }
+                            )
+                        }
                     }
                 }
             }

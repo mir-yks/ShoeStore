@@ -45,15 +45,15 @@
     <string name="checkout">Checkout</string>
     <string name="contact_information">Contact Information</string>
     <string name="address">Address</string>
-    <string name="phone_number">phone number</string>
+    <string name="phone_number">Phone number</string>
     <string name="payment_method">Payment Method</string>
     <string name="min_ago">min ago</string>
     <string name="open">OPEN</string>
     <string name="view_map">View Map</string>
     <string name="recent">Recent</string>
     <string name="yesterday">Yesterday</string>
-    <string name="more_details">more details</string>
-    <string name="added_to_cart">added to cart</string>
+    <string name="more_details">More details</string>
+    <string name="added_to_cart">Added to cart</string>
     <string name="add_to_cart">Add to Cart</string>
     <string name="payment_successful">Your Payment Is Successful</string>
     <string name="back_to_shopping">Back To Shopping</string>
@@ -65,8 +65,8 @@
     <string name="change_profile_picture">Change Profile Picture</string>
     <string name="your_name">Your Name</string>
     <string name="last_name">Last Name</string>
-    <string name="save_now">save Now</string>
-    <string name="confirm">confirm</string>
+    <string name="save_now">Save Now</string>
+    <string name="confirm">Confirm</string>
     <string name="map">Map</string>
     <string name="loyalty_card">Loyalty Card</string>
     <string name="create">Create Account</string>
@@ -86,4 +86,13 @@
     <string name="enter_otp_instruction">Enter the 6-digit code from your email</string>
     <string name="email_not_found">Email not found. Please sign up again.</string>
     <string name="enter_otp_error">Please enter 6-digit OTP code</string>
+    <string name="back_button">Back</string>
+    <string name="hide">Hide</string>
+    <string name="read_more">Read More</string>
+    <string name="no_description">No description</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="email_address">Email Address</string>
+    <string name="register_account">Register Account</string>
+    <string name="already_have_account">Already have account?</string>
 </resources>
