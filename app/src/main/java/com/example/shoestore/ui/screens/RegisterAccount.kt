@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shoeshop.ui.components.BackButton
 import com.example.shoeshop.ui.components.DisableButton
-import com.example.shoestore.R
+import com.example.shoeshop.R
 import com.example.shoestore.ui.viewmodels.RegisterAccountViewModel
 
 @Composable
