@@ -28,7 +28,14 @@ class ProfileViewModel : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
 
+    private val _saveSuccess = MutableStateFlow(false)
+    val saveSuccess = _saveSuccess.asStateFlow()
+
     private var isNewProfile = false
+
+    fun resetSaveSuccess() {
+        _saveSuccess.value = false
+    }
 
     fun loadUserProfile(userId: String) {
         viewModelScope.launch {
@@ -73,6 +80,7 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
+            _saveSuccess.value = false
             try {
                 val token = "Bearer ${TokenStorage.accessToken}"
                 val apiKey = TokenStorage.apiKey
@@ -95,6 +103,7 @@ class ProfileViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _errorMessage.value = "Профиль успешно сохранен"
                     isNewProfile = false
+                    _saveSuccess.value = true
                 } else {
                     _errorMessage.value = "Ошибка сохранения: ${response.code()}"
                 }
@@ -105,7 +114,6 @@ class ProfileViewModel : ViewModel() {
             }
         }
     }
-
 
     fun setProfilePhoto(bitmap: Bitmap) {
         val outputStream = ByteArrayOutputStream()
