@@ -221,6 +221,7 @@ fun SignInScreen(
             color = MaterialTheme.colorScheme.outline,
                 modifier = Modifier
                     .padding(top = 12.dp)
+                    .clickable { onForgotPasswordClick() }
                     )
         }
 

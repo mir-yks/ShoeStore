@@ -1,4 +1,3 @@
-// screens/HomeScreen.kt
 package com.example.shoestore.ui.screens
 
 import androidx.compose.foundation.Image
@@ -43,10 +42,8 @@ fun HomeScreen(
 ) {
     var selected by rememberSaveable { mutableIntStateOf(0) }
 
-    // Состояние для выбранной категории
     var selectedCategory by remember { mutableStateOf("Все") }
 
-    // Данные категорий
     val categories = listOf(
         Category("Все", isSelected = true),
         Category("Outdoor", isSelected = false),
@@ -60,7 +57,7 @@ fun HomeScreen(
             price = "P752.00",
             originalPrice = "P850.00",
             category = "BEST SELLER",
-            imageUrl = "", // Оставьте пустым или добавьте URL
+            imageUrl = "",
             imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3 // Добавьте ресурс картинки
         ),
         Product(
@@ -99,7 +96,6 @@ fun HomeScreen(
                     .height(80.dp)
                     .fillMaxWidth()
             ) {
-                // Фоновая картинка
                 Image(
                     painter = painterResource(id = R.drawable.vector_1789),
                     contentDescription = null,
@@ -107,7 +103,6 @@ fun HomeScreen(
                     modifier = Modifier.matchParentSize()
                 )
 
-                // Контент меню поверх картинки
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,7 +111,6 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Левая группа иконок
                     Row {
                         IconButton(onClick = { selected = 0 }) {
                             Icon(
@@ -137,7 +131,6 @@ fun HomeScreen(
                         }
                     }
 
-                    // Центральная кнопка корзины (выше других кнопок)
                     Box(
                         modifier = Modifier
                             .offset(y = (-20).dp)
@@ -158,7 +151,6 @@ fun HomeScreen(
                         }
                     }
 
-                    // Правая группа иконок
                     Row {
                         IconButton(onClick = { selected = 2 }) {
                             Icon(
@@ -188,7 +180,6 @@ fun HomeScreen(
                 .fillMaxSize()
                 .background(Color.White)
         ) {
-            // Верхняя панель с заголовком, поиском и настройками (только для главной вкладки)
             if (selected == 0) {
                 Column(
                     modifier = Modifier
@@ -203,13 +194,10 @@ fun HomeScreen(
                             .padding(bottom = 12.dp),
                         textAlign = TextAlign.Center
                     )
-
-                    // Строка с полем поиска и иконкой настроек
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Поле поиска
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -248,7 +236,6 @@ fun HomeScreen(
 
                         Spacer(modifier = Modifier.width(12.dp))
 
-                        // Иконка настроек с круглым голубым фоном
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
@@ -268,7 +255,6 @@ fun HomeScreen(
                 }
             }
 
-            // Основной контент
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -279,7 +265,6 @@ fun HomeScreen(
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             contentPadding = PaddingValues(16.dp)
                         ) {
-                            // Секция: Категории
                             item {
                                 CategorySection(
                                     categories = categories,
@@ -290,18 +275,15 @@ fun HomeScreen(
                                 )
                             }
 
-                            // Секция: Популярное
                             item {
                                 PopularSection(
                                     products = popularProducts,
                                     onProductClick = onProductClick,
                                     onFavoriteClick = { product ->
-                                        // Обработка добавления в избранное
                                     }
                                 )
                             }
 
-                            // Секция: Акции
                             item {
                                 PromotionsSection()
                             }
