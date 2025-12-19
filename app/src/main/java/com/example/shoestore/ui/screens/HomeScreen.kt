@@ -3,7 +3,19 @@ package com.example.shoestore.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -11,9 +23,27 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,9 +53,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shoestore.R
 import com.example.shoestore.data.model.Category
@@ -47,10 +75,12 @@ fun HomeScreen(
     onOpenCatalog: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
-    var selected by rememberSaveable { mutableIntStateOf(0) }
-    var selectedCategory by remember { mutableStateOf("Все") }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    var selectedCategory by remember { mutableStateOf("All") }
 
     val popularProducts by viewModel.popularProducts.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadPopularProducts()
@@ -63,6 +93,12 @@ fun HomeScreen(
         Category(name = stringResource(R.string.category_men)),
         Category(name = stringResource(R.string.category_women))
     )
+
+    val filteredPopular = if (selectedCategory == stringResource(R.string.category_all)) {
+        popularProducts
+    } else {
+        popularProducts.filter { it.category == selectedCategory }
+    }
 
     ShoeShopTheme {
         Scaffold(
@@ -88,19 +124,19 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row {
-                            IconButton(onClick = { selected = 0 }) {
+                            IconButton(onClick = { selectedTab = 0 }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.home),
                                     contentDescription = stringResource(R.string.home),
-                                    tint = if (selected == 0) MaterialTheme.colorScheme.primary else Color.Black
+                                    tint = if (selectedTab == 0) MaterialTheme.colorScheme.primary else Color.Black
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            IconButton(onClick = { selected = 1 }) {
+                            IconButton(onClick = { selectedTab = 1 }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.favorite),
                                     contentDescription = stringResource(R.string.favourite),
-                                    tint = if (selected == 1) MaterialTheme.colorScheme.primary else Color.Black
+                                    tint = if (selectedTab == 1) MaterialTheme.colorScheme.primary else Color.Black
                                 )
                             }
                         }
@@ -127,19 +163,19 @@ fun HomeScreen(
                         }
 
                         Row {
-                            IconButton(onClick = { selected = 2 }) {
+                            IconButton(onClick = { selectedTab = 2 }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.notification),
                                     contentDescription = stringResource(R.string.notifications),
-                                    tint = if (selected == 2) MaterialTheme.colorScheme.primary else Color.Black
+                                    tint = if (selectedTab == 2) MaterialTheme.colorScheme.primary else Color.Black
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            IconButton(onClick = { selected = 3 }) {
+                            IconButton(onClick = { selectedTab = 3 }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.profile),
                                     contentDescription = stringResource(R.string.profile),
-                                    tint = if (selected == 3) MaterialTheme.colorScheme.primary else Color.Black
+                                    tint = if (selectedTab == 3) MaterialTheme.colorScheme.primary else Color.Black
                                 )
                             }
                         }
@@ -154,7 +190,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .background(Color(0xFFF7F7F9))
             ) {
-                if (selected == 0) {
+                if (selectedTab == 0) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -188,7 +224,7 @@ fun HomeScreen(
                                         .height(48.dp),
                                     placeholder = {
                                         Text(
-                                            text = stringResource(id = R.string.search),
+                                            text = stringResource(R.string.search),
                                             style = AppTypography.bodyRegular14
                                         )
                                     },
@@ -208,7 +244,9 @@ fun HomeScreen(
                                     )
                                 )
                             }
+
                             Spacer(modifier = Modifier.width(12.dp))
+
                             Box(
                                 modifier = Modifier
                                     .size(48.dp)
@@ -227,39 +265,34 @@ fun HomeScreen(
                         }
                     }
 
-                    Box(
-                        modifier = Modifier.fillMaxSize()
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            contentPadding = PaddingValues(16.dp)
-                        ) {
-                            item {
-                                CategorySection(
-                                    categories = categories,
-                                    selectedCategory = selectedCategory,
-                                    onCategorySelected = { categoryName ->
-                                        selectedCategory = categoryName
-                                    }
-                                )
-                            }
+                        item {
+                            CategorySection(
+                                categories = categories,
+                                selectedCategory = selectedCategory,
+                                onCategorySelected = { selectedCategory = it }
+                            )
+                        }
 
-                            item {
-                                PopularSection(
-                                    products = popularProducts,
-                                    onProductClick = onProductClick,
-                                    onFavoriteClick = { product -> },
-                                    onOpenCatalog = onOpenCatalog
-                                )
-                            }
+                        item {
+                            PopularSection(
+                                isLoading = isLoading,
+                                products = filteredPopular,
+                                onProductClick = onProductClick,
+                                onFavoriteClick = {},
+                                onOpenCatalog = onOpenCatalog
+                            )
+                        }
 
-                            item {
-                                PromotionsSection()
-                            }
+                        item {
+                            PromotionsSection()
                         }
                     }
-                } else if (selected == 1) {
+                } else if (selectedTab == 1) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -269,7 +302,7 @@ fun HomeScreen(
                             style = AppTypography.headingRegular32
                         )
                     }
-                } else if (selected == 2) {
+                } else if (selectedTab == 2) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -279,11 +312,10 @@ fun HomeScreen(
                             style = AppTypography.headingRegular32
                         )
                     }
-                } else if (selected == 3) {
-                    ProfileScreen(
-                        onEditClick = onProfileEditClick,
-                        onBackClick = { selected = 0 },
-                        onLogoutClick = onProfileLogoutClick
+                } else if (selectedTab == 3) {
+                    Text(
+                        text = "Profile screen placeholder",
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
             }
@@ -303,9 +335,8 @@ private fun CategorySection(
             style = AppTypography.bodyMedium16,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             items(categories) { category ->
                 CategoryChip(
                     category = category.name,
@@ -340,6 +371,7 @@ private fun CategoryChip(
 
 @Composable
 private fun PopularSection(
+    isLoading: Boolean,
     products: List<Product>,
     onProductClick: (Product) -> Unit,
     onFavoriteClick: (Product) -> Unit,
@@ -362,27 +394,37 @@ private fun PopularSection(
                 modifier = Modifier.clickable { onOpenCatalog() }
             )
         }
+
         Spacer(modifier = Modifier.height(12.dp))
 
-        if (products.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+        when {
+            isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
-        } else {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(products) { product ->
-                    ProductCard(
-                        product = product,
-                        onProductClick = { onProductClick(product) },
-                        onFavoriteClick = { onFavoriteClick(product) }
-                    )
+
+            products.isEmpty() -> {
+                Text(
+                    text = stringResource(R.string.popular_empty),
+                    style = AppTypography.bodyRegular14
+                )
+            }
+
+            else -> {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    items(products) { product ->
+                        ProductCard(
+                            product = product,
+                            onProductClick = { onProductClick(product) },
+                            onFavoriteClick = { onFavoriteClick(product) }
+                        )
+                    }
                 }
             }
         }
