@@ -1,6 +1,7 @@
-package com.example.shoeshop.ui.screens
+package com.example.shoestore.ui.screens
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -26,15 +27,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.core.content.edit
-import com.example.shoeshop.R
-import com.example.shoeshop.ui.components.BackButton
-import com.example.shoeshop.ui.components.DisableButton
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shoestore.R
+import com.example.shoestore.ui.components.BackButton
+import com.example.shoestore.ui.components.DisableButton
 import com.example.shoestore.data.model.SignUpRequest
 import com.example.shoestore.ui.components.AlertDialogWithTwoButtons
 import com.example.shoestore.ui.theme.AppTypography
 import com.example.shoestore.ui.viewmodel.SignUpState
 import com.example.shoestore.ui.viewmodel.SignUpViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterAccountScreen(
@@ -42,7 +43,7 @@ fun RegisterAccountScreen(
     onBackClick: () -> Unit = {},
     onSignInClick: () -> Unit,
     onSignUpClick: () -> Unit,
-    viewModel: SignUpViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: SignUpViewModel = viewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -57,16 +58,13 @@ fun RegisterAccountScreen(
     val coroutineScope = rememberCoroutineScope()
     val signUpState by viewModel.signUpState.collectAsStateWithLifecycle()
 
-    // Получаем SharedPreferences как в вашем коде
     val sharedPreferences = remember {
         context.getSharedPreferences("shoe_shop_prefs", Context.MODE_PRIVATE)
     }
 
-    // Обработка состояний регистрации
     LaunchedEffect(signUpState) {
         when (signUpState) {
             is SignUpState.Success -> {
-                // Сохраняем данные при успешной регистрации
                 saveUserDataToPreferences(sharedPreferences, name, email)
                 onSignUpClick()
                 viewModel.resetState()
@@ -75,7 +73,6 @@ fun RegisterAccountScreen(
                 val error = (signUpState as SignUpState.Error)
                 errorMessage = error.message
 
-                // Показываем диалог только для определенных ошибок
                 val showDialog = when {
                     error.message.contains("Too many requests", ignoreCase = true) -> true
                     error.message.contains("rate limit", ignoreCase = true) -> true
@@ -87,8 +84,6 @@ fun RegisterAccountScreen(
                 if (showDialog) {
                     showErrorDialog = true
                 } else {
-                    // Для других ошибок можно показать Snackbar или Toast
-                    // например, для ошибок валидации
                 }
                 viewModel.resetState()
             }
@@ -96,7 +91,6 @@ fun RegisterAccountScreen(
         }
     }
 
-    // Диалог для ошибок
     AlertDialogWithTwoButtons(
         showDialog = showErrorDialog,
         onDismissRequest = {
@@ -104,13 +98,11 @@ fun RegisterAccountScreen(
             errorMessage = ""
         },
         onConfirm = {
-            // При нажатии Отмена - просто закрываем диалог
             showErrorDialog = false
             errorMessage = ""
             pendingSignUpRequest = null
         },
         onCancel = {
-            // При нажатии Отмена - просто закрываем диалог
             showErrorDialog = false
             errorMessage = ""
             pendingSignUpRequest = null
@@ -120,7 +112,6 @@ fun RegisterAccountScreen(
         cancelButtonText = stringResource(R.string.cancel),
     )
 
-    // Используем цвета из темы
     val hintColor = MaterialTheme.colorScheme.onSurfaceVariant
     val borderColor = MaterialTheme.colorScheme.outline
     val checkboxBorderColor = MaterialTheme.colorScheme.outlineVariant
@@ -155,7 +146,6 @@ fun RegisterAccountScreen(
             )
         }
 
-        // Поле "Имя"
         Text(
             text = stringResource(id = R.string.name),
             style = AppTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
@@ -192,7 +182,6 @@ fun RegisterAccountScreen(
             singleLine = true
         )
 
-        // Поле "Email"
         Text(
             text = stringResource(id = R.string.email),
             style = AppTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
@@ -230,7 +219,6 @@ fun RegisterAccountScreen(
             singleLine = true
         )
 
-        // Поле "Пароль"
         Text(
             text = stringResource(id = R.string.pass),
             style = AppTypography.bodyMedium16.copy(fontWeight = FontWeight.Medium),
@@ -278,9 +266,9 @@ fun RegisterAccountScreen(
                     Icon(
                         painter = painterResource(
                             id = if (passwordVisible) {
-                                R.drawable.eye_close
-                            } else {
                                 R.drawable.eye_open
+                            } else {
+                                R.drawable.eye_close
                             }
                         ),
                         contentDescription = if (passwordVisible) {
@@ -294,7 +282,6 @@ fun RegisterAccountScreen(
             }
         )
 
-        // Чекбокс с пользовательским соглашением
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -348,7 +335,6 @@ fun RegisterAccountScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Кнопка регистрации
         DisableButton(
             text = stringResource(id = R.string.sign_up),
             onClick = {
@@ -357,7 +343,6 @@ fun RegisterAccountScreen(
                     pendingSignUpRequest = signUpRequest
                     viewModel.signUp(signUpRequest)
                 } else {
-                    // Валидация полей
                     errorMessage = when {
                         name.isEmpty() -> "Please enter your name"
                         email.isEmpty() -> "Please enter your email address"
@@ -374,7 +359,6 @@ fun RegisterAccountScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Ссылка на вход
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -412,7 +396,7 @@ fun RegisterAccountScreen(
 }
 
 private fun saveUserDataToPreferences(
-    sharedPreferences: android.content.SharedPreferences,
+    sharedPreferences: SharedPreferences,
     name: String,
     email: String
 ) {

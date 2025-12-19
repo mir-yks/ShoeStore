@@ -37,9 +37,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.shoeshop.R
-import com.example.shoeshop.ui.components.DisableButton
-import com.example.shoeshop.ui.viewmodel.EmailVerificationViewModel
+import com.example.shoestore.R
+import com.example.shoestore.ui.components.DisableButton
+import com.example.shoestore.ui.viewmodel.EmailVerificationViewModel
 import com.example.shoestore.ui.theme.AppTypography
 import kotlin.text.ifEmpty
 
@@ -60,12 +60,12 @@ fun EmailVerificationScreen(
 
     LaunchedEffect(verificationState) {
         when (verificationState) {
-            is com.example.shoeshop.ui.viewmodel.VerificationState.Success -> {
+            is com.example.shoestore.ui.viewmodel.VerificationState.Success -> {
                 onVerificationSuccess()
                 viewModel.resetState()
             }
-            is com.example.shoeshop.ui.viewmodel.VerificationState.Error -> {
-                val errorMessage = (verificationState as com.example.shoeshop.ui.viewmodel.VerificationState.Error).message
+            is com.example.shoestore.ui.viewmodel.VerificationState.Error -> {
+                val errorMessage = (verificationState as com.example.shoestore.ui.viewmodel.VerificationState.Error).message
                 android.widget.Toast.makeText(context, errorMessage, android.widget.Toast.LENGTH_LONG).show()
                 viewModel.resetState()
             }
@@ -80,7 +80,6 @@ fun EmailVerificationScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Заголовок
         Text(
             text = "Verify Your Email",
             style = MaterialTheme.typography.headlineLarge,
@@ -89,7 +88,6 @@ fun EmailVerificationScreen(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Информационное сообщение
         Text(
             text = "We sent a 6-digit verification code to:",
             style = MaterialTheme.typography.bodyMedium,
@@ -98,7 +96,6 @@ fun EmailVerificationScreen(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Email пользователя
         Text(
             text = userEmail.ifEmpty { "your email" },
             style = MaterialTheme.typography.bodyLarge,
@@ -108,7 +105,6 @@ fun EmailVerificationScreen(
             modifier = Modifier.padding(bottom = 40.dp)
         )
 
-        // Поле для OTP кода
         Text(
             text = "Enter OTP Code",
             style = MaterialTheme.typography.bodyMedium,
@@ -134,7 +130,6 @@ fun EmailVerificationScreen(
             )
         )
 
-        // Подсказка под полем OTP
         Text(
             text = "Enter the 6-digit code from your email",
             style = MaterialTheme.typography.bodySmall,
@@ -159,7 +154,6 @@ fun EmailVerificationScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Ссылка для возврата к входу
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center

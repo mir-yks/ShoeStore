@@ -41,7 +41,6 @@ val Typography = Typography(
         lineHeight = 24.sp
     ),
 
-    // Body Regular 24
     headlineSmall = TextStyle(
         fontFamily = ralewayRegular,
         fontWeight = FontWeight.Normal,
