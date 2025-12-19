@@ -1,4 +1,4 @@
-package com.example.shoeshop.ui.components
+package com.example.shoestore.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,7 +16,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.shoeshop.R
+import com.example.shoestore.R
 
 
 @Composable

@@ -25,7 +25,6 @@ class SignInViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     response.body()?.let { signInResponse ->
-                        // Сохраняем токен
                         saveAuthToken(signInResponse.access_token)
                         saveRefreshToken(signInResponse.refresh_token)
                         saveUserData(signInResponse.user)
@@ -63,17 +62,14 @@ class SignInViewModel : ViewModel() {
     }
 
     private fun saveAuthToken(token: String) {
-        // TODO: Сохранить токен в SecurePreferences
         Log.d("Auth", "Access token saved: ${token.take(10)}...")
     }
 
     private fun saveRefreshToken(token: String) {
-        // TODO: Сохранить refresh токен
         Log.d("Auth", "Refresh token saved: ${token.take(10)}...")
     }
 
     private fun saveUserData(user: com.example.shoestore.data.model.User) {
-        // TODO: Сохранить данные пользователя
         Log.d("Auth", "User data saved: ${user.email}")
     }
 

@@ -1,5 +1,5 @@
 // EmailVerificationViewModel.kt
-package com.example.shoeshop.ui.viewmodel
+package com.example.shoestore.ui.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
