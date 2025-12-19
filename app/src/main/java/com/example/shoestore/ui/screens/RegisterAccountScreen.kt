@@ -266,9 +266,9 @@ fun RegisterAccountScreen(
                     Icon(
                         painter = painterResource(
                             id = if (passwordVisible) {
-                                R.drawable.eye_close
-                            } else {
                                 R.drawable.eye_open
+                            } else {
+                                R.drawable.eye_close
                             }
                         ),
                         contentDescription = if (passwordVisible) {
