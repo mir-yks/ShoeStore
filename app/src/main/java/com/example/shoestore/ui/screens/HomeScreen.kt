@@ -26,11 +26,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.shoestore.data.model.Product
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shoestore.R
 import com.example.shoestore.data.model.Category
+import com.example.shoestore.data.model.Product
 import com.example.shoestore.ui.components.ProductCard
 import com.example.shoestore.ui.theme.AppTypography
-import com.example.shoestore.R
+import com.example.shoestore.ui.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,57 +43,25 @@ fun HomeScreen(
     onSettingsClick: () -> Unit = {},
     onProfileEditClick: () -> Unit = {},
     onProfileLogoutClick: () -> Unit = {},
-    onOpenCatalog: () -> Unit = {}
+    onOpenCatalog: () -> Unit = {},
+    viewModel: HomeViewModel = viewModel()
 ) {
     var selected by rememberSaveable { mutableIntStateOf(0) }
-
     var selectedCategory by remember { mutableStateOf("Все") }
 
-    val categories = listOf(
-        Category("Все", isSelected = true),
-        Category("Outdoor", isSelected = false),
-        Category("Tennis", isSelected = false),
-        Category("Men", isSelected = false),
-        Category("Women", isSelected = false)
-    )
+    val popularProducts by viewModel.popularProducts.collectAsState()
 
-    val popularProducts = listOf(
-        Product(
-            id = "1",
-            name = "Nike Air Max",
-            price = "P752.00",
-            originalPrice = "P850.00",
-            category = "BEST SELLER",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "2",
-            name = "Nike Air Force 1",
-            price = "P820.00",
-            originalPrice = "P900.00",
-            category = "BEST SELLER",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "3",
-            name = "Adidas Ultraboost",
-            price = "P680.00",
-            originalPrice = "P750.00",
-            category = "NEW",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        ),
-        Product(
-            id = "4",
-            name = "Puma RS-X",
-            price = "P520.00",
-            originalPrice = "P600.00",
-            category = "TRENDING",
-            imageUrl = "",
-            imageResId = R.drawable.nike_zoom_winflo_3_831561_001_mens_running_shoes_11550187236tiyyje6l87_prev_ui_3
-        )
+    LaunchedEffect(Unit) {
+        viewModel.loadPopularProducts()
+    }
+
+    // ИСПРАВЛЕНО: Используем правильный конструктор Category(name = "...")
+    val categories = listOf(
+        Category(name = "Все"),
+        Category(name = "Outdoor"),
+        Category(name = "Tennis"),
+        Category(name = "Men"),
+        Category(name = "Women")
     )
 
     Scaffold(
@@ -124,9 +94,7 @@ fun HomeScreen(
                                 tint = if (selected == 0) MaterialTheme.colorScheme.primary else Color.Black
                             )
                         }
-
                         Spacer(modifier = Modifier.width(8.dp))
-
                         IconButton(onClick = { selected = 1 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.favorite),
@@ -146,7 +114,8 @@ fun HomeScreen(
                             onClick = { onCartClick() },
                             modifier = Modifier.size(56.dp),
                             containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            shape = CircleShape
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.bag_2),
@@ -164,9 +133,7 @@ fun HomeScreen(
                                 tint = if (selected == 2) MaterialTheme.colorScheme.primary else Color.Black
                             )
                         }
-
                         Spacer(modifier = Modifier.width(8.dp))
-
                         IconButton(onClick = { selected = 3 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.profile),
@@ -199,6 +166,7 @@ fun HomeScreen(
                             .padding(bottom = 12.dp),
                         textAlign = TextAlign.Center
                     )
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -238,9 +206,7 @@ fun HomeScreen(
                                 )
                             )
                         }
-
                         Spacer(modifier = Modifier.width(12.dp))
-
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
@@ -258,77 +224,70 @@ fun HomeScreen(
                         }
                     }
                 }
-            }
 
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                when (selected) {
-                    0 -> {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            contentPadding = PaddingValues(16.dp)
-                        ) {
-                            item {
-                                CategorySection(
-                                    categories = categories,
-                                    selectedCategory = selectedCategory,
-                                    onCategorySelected = { category ->
-                                        selectedCategory = category
-                                    }
-                                )
-                            }
-
-                            item {
-                                PopularSection(
-                                    products = popularProducts,
-                                    onProductClick = onProductClick,
-                                    onFavoriteClick = { product -> },
-                                    onOpenCatalog = onOpenCatalog
-                                )
-                            }
-
-                            item {
-                                PromotionsSection()
-                            }
-                        }
-                    }
-                    1 -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = stringResource(R.string.favourite),
-                                style = AppTypography.headingRegular32
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(16.dp)
+                    ) {
+                        item {
+                            CategorySection(
+                                categories = categories,
+                                selectedCategory = selectedCategory,
+                                onCategorySelected = { categoryName ->
+                                    selectedCategory = categoryName
+                                }
                             )
                         }
-                    }
-                    2 -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = stringResource(R.string.notifications),
-                                style = AppTypography.headingRegular32
+
+                        item {
+                            PopularSection(
+                                products = popularProducts,
+                                onProductClick = onProductClick,
+                                onFavoriteClick = { product -> },
+                                onOpenCatalog = onOpenCatalog
                             )
                         }
-                    }
-                    3 -> {
-                        // ВОТ ЗДЕСЬ ИСПРАВЛЕНИЕ: ПЕРЕДАЕМ ПАРАМЕТРЫ
-                        ProfileScreen(
-                            onEditClick = onProfileEditClick,
-                            onBackClick = { selected = 0 },
-                            onLogoutClick = onProfileLogoutClick
-                        )
+
+                        item {
+                            PromotionsSection()
+                        }
                     }
                 }
+            } else if (selected == 1) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.favourite),
+                        style = AppTypography.headingRegular32
+                    )
+                }
+            } else if (selected == 2) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.notifications),
+                        style = AppTypography.headingRegular32
+                    )
+                }
+            } else if (selected == 3) {
+                ProfileScreen(
+                    onEditClick = onProfileEditClick,
+                    onBackClick = { selected = 0 },
+                    onLogoutClick = onProfileLogoutClick
+                )
             }
         }
     }
 }
+
 @Composable
 private fun CategorySection(
     categories: List<Category>,
@@ -341,11 +300,11 @@ private fun CategorySection(
             style = AppTypography.bodyMedium16,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(categories) { category ->
+                // ИСПРАВЛЕНО: используем category.name вместо category.title
                 CategoryChip(
                     category = category.name,
                     isSelected = selectedCategory == category.name,
@@ -392,7 +351,7 @@ private fun PopularSection(
         ) {
             Text(
                 text = stringResource(id = R.string.popular),
-                style = AppTypography.bodyMedium16,
+                style = AppTypography.bodyMedium16
             )
             Text(
                 text = stringResource(id = R.string.all),
@@ -401,18 +360,28 @@ private fun PopularSection(
                 modifier = Modifier.clickable { onOpenCatalog() }
             )
         }
-
         Spacer(modifier = Modifier.height(12.dp))
 
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(products) { product ->
-                ProductCard(
-                    product = product,
-                    onProductClick = { onProductClick(product) },
-                    onFavoriteClick = { onFavoriteClick(product) }
-                )
+        if (products.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(products) { product ->
+                    ProductCard(
+                        product = product,
+                        onProductClick = { onProductClick(product) },
+                        onFavoriteClick = { onFavoriteClick(product) }
+                    )
+                }
             }
         }
     }
@@ -426,7 +395,6 @@ private fun PromotionsSection() {
             style = AppTypography.bodyMedium16,
             modifier = Modifier.padding(bottom = 12.dp)
         )
-
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -453,9 +421,7 @@ private fun PromotionsSection() {
                             color = Color.White
                         )
                     )
-
                     Spacer(modifier = Modifier.height(4.dp))
-
                     Text(
                         text = stringResource(R.string.summer_sale_discount_15),
                         style = AppTypography.headingRegular32.copy(
@@ -465,10 +431,8 @@ private fun PromotionsSection() {
                         )
                     )
                 }
-
                 TextButton(
-                    onClick = {
-                    },
+                    onClick = { },
                     modifier = Modifier
                         .background(Color.White, RoundedCornerShape(12.dp))
                         .padding(horizontal = 16.dp, vertical = 8.dp)
